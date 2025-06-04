@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Temperature Converter</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 20px;
+      text-align: center;
+      transition: background-color 0.5s ease;
+      background-color: lightblue;
+    }
+    h1 {
+      color: white;
+    }
+    .form {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      margin-top: 50px;
+    }
+    table {
+      background-color: rgba(255, 255, 255, 0.3);
+      padding: 20px;
+      border-radius: 10px;
+    }
+    #fact {
+      margin-top: 30px;
+      font-weight: bold;
+      color: white;
+      font-size: 1.2rem;
+    }
+    button {
+      padding: 5px 10px;
+      margin: 5px;
+    }
+  </style>
+</head>
+<body>
+  <h1>TEMPERATURE CONVERTER</h1>
+  <form class="form" onsubmit="event.preventDefault(); convertTemp();">
+    <table>
+      <tr>
+        <td><label for="from">Enter Temperature : </label></td>
+        <td><input type="number" id="from" placeholder="temperature" /></td>
+        <td>
+          <select id="from_dropdown">
+            <option value="C">Celsius</option>
+            <option value="F">Fahrenheit</option>
+            <option value="K">Kelvin</option>
+          </select>
+        </td>
+      </tr>
+      <tr>
+        <td><label>Converted</label></td>
+        <td><input type="number" id="to" readonly /></td>
+        <td>
+          <select id="to_dropdown">
+            <option value="C">Celsius</option>
+            <option value="F">Fahrenheit</option>
+            <option value="K">Kelvin</option>
+          </select>
+        </td>
+      </tr>
+      <tr>
+        <td colspan="3">
+          <button type="submit">Convert</button>
+          <button type="reset" onclick="clearInput()">Clear</button>
+        </td>
+      </tr>
+    </table>
+  </form>
+
+  <div id="fact"></div>
+
+  <script>
+    function convertTemp() {
+      const fromUnit = document.getElementById("from_dropdown").value;
+      const toUnit = document.getElementById("to_dropdown").value;
+      const fromValue = parseFloat(document.getElementById("from").value);
+
+      if (isNaN(fromValue)) {
+        alert("Please enter a valid temperature!");
+        return;
+      }
+
+      let result = fromValue;
+
+      if (fromUnit === "C") {
+        if (toUnit === "F") result = (fromValue * 9) / 5 + 32;
+        else if (toUnit === "K") result = fromValue + 273.15;
+      } else if (fromUnit === "F") {
+        if (toUnit === "C") result = ((fromValue - 32) * 5) / 9;
+        else if (toUnit === "K") result = ((fromValue - 32) * 5) / 9 + 273.15;
+      } else if (fromUnit === "K") {
+        if (toUnit === "C") result = fromValue - 273.15;
+        else if (toUnit === "F") result = ((fromValue - 273.15) * 9) / 5 + 32;
+      }
+
+      document.getElementById("to").value = result.toFixed(2);
+
+      let celsiusTemp = result;
+      if (toUnit === "F") celsiusTemp = ((result - 32) * 5) / 9;
+      else if (toUnit === "K") celsiusTemp = result - 273.15;
+
+      let red = Math.min(255, Math.max(0, Math.floor((celsiusTemp - 10) * 10)));
+      let blue = 255 - red;
+      let green = 80;
+      document.body.style.backgroundColor = `rgb(${red},${green},${blue})`;
+
+      fetch('/fact')
+        .then(res => res.json())
+        .then(data => {
+          document.getElementById("fact").innerText = "💡 " + data.fact;
+        });
+    }
+
+    function clearInput() {
+      document.getElementById("from").value = "";
+      document.getElementById("to").value = "";
+      document.getElementById("fact").innerText = "";
+      document.body.style.backgroundColor = "lightblue";
+    }
+  </script>
+</body>
+</html>
